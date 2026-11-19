@@ -1,0 +1,34 @@
+name: Build ByAzen for Windows
+on:
+  workflow_dispatch:
+  push:
+    paths: ['desktop/**', 'package*.json', 'index.html', 'style.css', 'app.js', 'assets/**', '.github/workflows/windows.yml']
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Generate SHA-256 checksum
+        shell: pwsh
+        run: |
+          Get-ChildItem dist/ByAzen-*.exe | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)" | Set-Content "$($_.FullName).sha256" -Encoding ascii
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ByAzen-Windows-x64
+          path: |
+            dist/ByAzen-*.exe
+            dist/ByAzen-*.exe.sha256
+          if-no-files-found: error
