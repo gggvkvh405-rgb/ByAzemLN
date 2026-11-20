@@ -17,3 +17,136 @@
 :root[data-motion=reduced] *, :root[data-motion=reduced] *::before{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 :root{background:var(--wall)}.shell{background:var(--surface);border-color:var(--line)}aside,footer{background:var(--sidebar);color:inherit;border-color:var(--line)}.panel,dialog{background:var(--panel);color:inherit;border-color:var(--line)}.muted,.panel p,dialog p,.field,.titlebar,.status small,.library-label{color:var(--dim)}.field,.panel input,dialog input,#feed-batch textarea,#profile-form textarea,.appearance-grid select{background:var(--control);color:inherit;border-color:var(--line)}.primary,.pill.active{background:var(--primary);color:var(--primary-text)}.primary:hover,.pill.active:hover{opacity:.85;background:var(--primary)}button:hover,nav button.active{background:var(--hover)}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent)}#progress{background:var(--accent)}progress{accent-color:var(--accent)}.hero{color:#f4f4f5}.appearance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-block:12px}.appearance-grid label{display:grid;gap:4px}.appearance-grid select{border:1px solid var(--line);border-radius:6px;padding:6px}#offline[hidden]{display:none}
+
+/* A full-window workspace, with independent scrolling for the library and content. */
+:root{font-family:'Manrope Variable',system-ui,sans-serif}
+body{display:block;padding:0;height:100dvh;min-height:0;overflow:hidden}
+.shell{width:100%;max-width:none;height:100dvh;min-height:0;border:0;border-radius:0;box-shadow:none;grid-template-rows:minmax(0,1fr) auto}
+aside{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.workspace{min-width:0;min-height:0;display:flex;flex-direction:column}
+main{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:22px clamp(18px,2vw,36px) 28px}
+header{flex:none;height:50px;padding-inline:clamp(18px,2vw,36px)}
+.titlebar{flex:none}
+h1,h2{letter-spacing:-.04em}
+h1{font-size:22px;margin-bottom:12px}
+nav button,.side-game,.pill,.primary,.field input{font-size:12px}
+
+/* Motion is deliberately subtle, and never hides controls while it runs. */
+@keyframes page-enter{from{opacity:.45;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dialog-enter{from{opacity:.3;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes hero-glow{0%,100%{opacity:.16;transform:translateX(-18%)}50%{opacity:.3;transform:translateX(18%)}}
+main>h1,main>.hero,main>.tabs,main>.section-head,main>.grid,main>.panel,main>p,main>#desktop-downloads{animation:page-enter .42s cubic-bezier(.2,.8,.2,1) both}
+main>.tabs,main>.grid{animation-delay:.04s}
+dialog[open]{animation:dialog-enter .25s cubic-bezier(.2,.8,.2,1) both}
+button,.field,.panel,dialog,.card img,#progress{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease,opacity .2s ease,width .3s ease}
+button:active{transform:scale(.97)}
+nav button:hover,.side-game:hover{transform:translateX(3px)}
+nav button.active{box-shadow:inset 3px 0 var(--accent)}
+.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+.card{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 28px #0005}
+.card img{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.card:hover img{transform:scale(1.07)}
+.card span{transition:opacity .25s ease}
+.hero:after{content:'';position:absolute;inset:-30%;pointer-events:none;background:linear-gradient(110deg,transparent 35%,#9ce8e126 50%,transparent 65%);animation:hero-glow 8s ease-in-out infinite}
+.hero-copy{z-index:1}
+.track div{transition:width .35s ease}
+@media(max-width:650px){main,header{padding-inline:12px}.shell{grid-template-columns:54px minmax(0,1fr)}}
+:root[data-motion=reduced] *, :root[data-motion=reduced] *::before, :root[data-motion=reduced] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+:root[data-zoom=large] body{height:calc(100dvh / 1.12)}
+:root[data-zoom=largest] body{height:calc(100dvh / 1.25)}
+.shell{height:100%}
+
+/* Refined launcher surfaces and typography. All colors follow the selected theme. */
+:root{--ease-out:cubic-bezier(.16,1,.3,1)}
+.shell{grid-template-columns:clamp(210px,18vw,270px) minmax(0,1fr)}
+aside{padding:24px 14px 18px;border-right:1px solid var(--line)}
+.brand{gap:11px;margin:0 8px 22px;font-size:23px;letter-spacing:-.06em}
+.brand img{width:38px;filter:drop-shadow(0 4px 12px color-mix(in srgb,var(--accent) 20%,transparent))}
+.profile{padding:9px;border:1px solid var(--line);background:var(--control);border-radius:12px;margin-bottom:20px;font-weight:700}
+.profile img{width:36px;height:36px;object-fit:cover}
+nav{gap:5px}
+nav button{min-height:42px;padding:10px 13px;border-radius:10px;color:var(--dim);font-size:13px;font-weight:650}
+nav button i{width:18px;height:18px}
+nav button:hover,nav button.active{color:inherit}
+nav button.active{background:color-mix(in srgb,var(--accent) 13%,var(--panel));box-shadow:inset 3px 0 var(--accent)}
+nav button.active i{color:var(--accent)}
+.library-label{margin:22px 5px 12px;padding-top:18px;border-color:var(--line);font-weight:800;letter-spacing:.14em;font-size:10px}
+aside .field{margin:0 2px 10px}
+.side-game{min-height:44px;padding:5px 7px;border-radius:9px;font-weight:600;line-height:1.35}
+.side-game img{width:34px;height:34px;border-radius:7px}
+.titlebar{border-color:var(--line);height:30px}
+header{height:62px;border-color:var(--line);gap:12px;font-size:13px;font-weight:700}
+header button{display:grid;place-items:center;width:33px;height:33px;border:1px solid var(--line);border-radius:10px}
+.search{width:min(32vw,310px);min-height:36px}
+.field{padding:8px 10px;border-radius:10px}
+.field i{width:15px;height:15px}
+.field input{font-size:12px}
+main{padding:30px clamp(22px,3vw,54px) 44px}
+main>h1{font-size:clamp(24px,2vw,32px);line-height:1.15;font-weight:800;letter-spacing:-.055em;margin-bottom:18px}
+h2{font-weight:800}
+.hero{min-height:clamp(250px,25vw,410px);border-radius:18px;border-color:#ffffff1c;box-shadow:0 18px 45px #0003}
+.hero:before{background:linear-gradient(90deg,#080909 0%,#080909e8 23%,#08090955 58%,transparent 85%),url(assets/hero.webp) right center/auto 100% no-repeat;transition:transform 1.2s var(--ease-out),filter 1.2s ease}
+.hero:hover:before{transform:scale(1.025);filter:brightness(1.12)}
+.hero-copy{padding:clamp(24px,3vw,48px)}
+.hero h2{font-size:clamp(40px,4.6vw,68px);line-height:.83;margin:5px 0 20px;letter-spacing:-.06em}
+.hero p{font-size:13px;line-height:1.65;color:#d3d6d7;margin-bottom:14px}
+.badges{gap:7px;margin-bottom:18px}
+.badge{padding:5px 10px;background:#171b1bc9;border-color:#ffffff25;font-size:10px;font-weight:700}
+.primary,.pill{min-height:37px;padding:9px 15px;border-radius:10px;font-size:12px;font-weight:700}
+.pill{background:var(--control);border-color:var(--line)}
+.primary,.pill.active{border-color:transparent}
+.hero .primary{min-width:150px;padding:10px 18px}
+.tabs{gap:8px;margin:24px 0 27px}
+.section-head{margin-bottom:14px}
+.section-head h2{font-size:19px}
+.section-head button{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);border-radius:10px}
+.grid{gap:14px}
+.card{border-radius:15px;border-color:var(--line);box-shadow:0 8px 25px #0002}
+.card span{padding:30px 16px 15px;background:linear-gradient(transparent,#000d);font-size:14px}
+.panel{padding:20px;border-radius:14px;margin:12px 0;box-shadow:0 6px 20px #0000000a}
+.panel p,dialog p{line-height:1.65}
+.panel input,dialog input,#feed-batch textarea,#profile-form textarea,.appearance-grid select{border-radius:9px;padding:10px}
+dialog{width:min(520px,calc(100% - 32px));max-height:min(85vh,800px);overflow:auto;padding:28px;border-radius:18px;box-shadow:0 25px 90px #0009}
+dialog::backdrop{background:#05090be0;backdrop-filter:blur(6px)}
+.close{width:34px;height:34px;line-height:1}
+footer{padding:10px 20px;font-size:11px}
+.track{height:3px}
+
+/* Soft, layered motion with no perpetual motion on interactive elements. */
+@keyframes content-rise{from{opacity:.35;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes card-rise{from{opacity:.4;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes logo-arrive{from{opacity:.5;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+main>h1,main>.hero,main>.tabs,main>.section-head,main>.panel,main>p,main>#desktop-downloads{animation:content-rise .65s var(--ease-out) both}
+main>.grid{animation:none}
+.grid>.card{animation:card-rise .7s var(--ease-out) backwards}
+.grid>.card:nth-child(3n+2){animation-delay:.055s}
+.grid>.card:nth-child(3n+3){animation-delay:.11s}
+.brand{animation:logo-arrive .8s var(--ease-out) both}
+button,.field,.panel,dialog,#progress{transition:background-color .3s ease,border-color .3s ease,color .3s ease,box-shadow .4s ease,transform .45s var(--ease-out),opacity .3s ease}
+nav button:hover,.side-game:hover{transform:translateX(4px)}
+.side-game img,.profile img{transition:transform .55s var(--ease-out),filter .55s ease}
+.side-game:hover img,.profile:hover img{transform:scale(1.08);filter:brightness(1.12)}
+.primary:hover,.pill:hover{transform:translateY(-2px);box-shadow:0 8px 20px #0002}
+button:active,.primary:active,.pill:active{transform:scale(.97)}
+.card{transition:transform .55s var(--ease-out),border-color .4s ease,box-shadow .55s ease}
+.card:hover{transform:translateY(-6px);box-shadow:0 18px 36px #0005}
+.card img{transition:transform .9s var(--ease-out),filter .9s ease}
+.card:hover img{transform:scale(1.07);filter:brightness(1.08)}
+.card span{transition:opacity .4s ease}
+.track div{transition:width .6s var(--ease-out)}
+@media(max-width:650px){
+  .shell{grid-template-columns:54px minmax(0,1fr)}
+  aside{padding:12px 5px}
+  .brand{margin:0 0 14px;font-size:0}
+  .profile{padding:4px;border:0;background:transparent}
+  nav button{padding:8px;min-height:38px}
+  main,header{padding-inline:12px}
+  main{padding-top:20px}
+  .hero-copy{padding:18px}
+  .hero:before{background-position:center,right -100px center}
+  .grid{gap:8px}
+}
+:root[data-motion=reduced] *, :root[data-motion=reduced] *::before, :root[data-motion=reduced] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
