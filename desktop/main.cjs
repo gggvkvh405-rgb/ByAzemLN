@@ -60,6 +60,8 @@ invoke('saves-restore',async (id,backup)=>{
 invoke('play',async (id,args)=>{const argv=launchArgs(args);const file=(await executables())[key(id)];if(!file)throw Error('Choose the game executable first.');if(!(await fs.stat(file).catch(()=>null))?.isFile())throw Error('Executable not found. Choose .exe again.');await new Promise((resolve,reject)=>{const child=spawn(file,argv,{cwd:dirname(file),detached:true,stdio:'ignore',shell:false});child.once('error',reject);child.once('spawn',()=>{child.unref();resolve()})})});
 app.whenReady().then(()=>{
   win=new BrowserWindow({width:1120,height:780,minWidth:600,minHeight:480,titleBarStyle:'hidden',titleBarOverlay:{color:'#101112',symbolColor:'#eee',height:30},backgroundColor:'#101112',webPreferences:{preload:join(__dirname,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
+  // Start maximized while keeping the native window controls available.
+  win.maximize();
   session.defaultSession.setPermissionRequestHandler((_wc,_permission,reply)=>reply(false));
   win.webContents.on('will-navigate',e=>e.preventDefault());win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   session.defaultSession.on('will-download',(_event,item,contents)=>{if(contents!==win?.webContents){item.cancel();return}if(item.getURL().startsWith('blob:')&&item.getFilename()==='byazen-sources.txt')return;queue.attach(item)});

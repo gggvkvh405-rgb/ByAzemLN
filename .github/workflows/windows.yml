@@ -2,7 +2,7 @@ name: Build ByAzen for Windows
 on:
   workflow_dispatch:
   push:
-    paths: ['desktop/**', 'package*.json', 'index.html', 'style.css', 'app.js', 'assets/**', '.github/workflows/windows.yml']
+    paths: ['desktop/**', 'package*.json', 'index.html', 'style.css', 'fonts.css', 'app.js', 'assets/**', '.github/workflows/windows.yml']
 permissions:
   contents: read
 jobs:
