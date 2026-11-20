@@ -6,6 +6,7 @@ const {spawn}=require('node:child_process');
 const {launchArgs}=require('./launch.cjs');
 const {normalizeFeed}=require('./source.cjs');
 const {createQueue}=require('./queue.cjs');
+const {steamSearchUrl,parseSteamResponse}=require('./steam.cjs');
 let win;
 const queue=createQueue(url=>win.webContents.downloadURL(url),jobs=>{if(win&&!win.isDestroyed())win.webContents.send('downloads',jobs)});
 const entry=join(__dirname,'..','index.html'), allowed=pathToFileURL(entry).href;
@@ -14,6 +15,13 @@ const http=value=>{const u=new URL(value);if(!['https:','http:'].includes(u.prot
 const executableFile=()=>join(app.getPath('userData'),'executables.json');
 const executables=async()=>{try{return JSON.parse(await fs.readFile(executableFile(),'utf8'))}catch(e){if(e.code==='ENOENT')return {};throw e}};
 const key=id=>{if(typeof id!=='string'||!/^[\w-]{1,100}$/.test(id)||['__proto__','constructor','prototype'].includes(id))throw Error('Invalid game ID');return id};
+invoke('steam-search',async filters=>{
+  const response=await net.fetch(steamSearchUrl(filters),{signal:AbortSignal.timeout(20000),credentials:'omit',redirect:'error'});
+  if(!response.ok)throw Error(`Steam вернул HTTP ${response.status}`);
+  const chunks=[];let size=0;for await(const chunk of response.body){size+=chunk.length;if(size>3*1024*1024)throw Error('Ответ Steam слишком большой');chunks.push(Buffer.from(chunk))}
+  return parseSteamResponse(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+});
+invoke('steam-open',id=>{if(typeof id!=='string'||!/^\d{1,10}$/.test(id))throw Error('Invalid Steam ID');return shell.openExternal(`https://store.steampowered.com/app/${id}/`)});
 invoke('feed',async (raw,seconds=30)=>{const response=await net.fetch(http(raw),{signal:AbortSignal.timeout((Number.isInteger(seconds)&&seconds>=5&&seconds<=120?seconds:30)*1000),credentials:'omit'});if(!response.ok)throw Error(`Source returned HTTP ${response.status}`);const chunks=[];let size=0;for await(const chunk of response.body){size+=chunk.length;if(size>16*1024*1024)throw Error('Source exceeds 16 MB');chunks.push(Buffer.from(chunk))}return normalizeFeed(JSON.parse(Buffer.concat(chunks).toString('utf8')))});
 invoke('feed-file',async()=>{
   const result=await dialog.showOpenDialog(win,{properties:['openFile'],filters:[{name:'Hydra JSON',extensions:['json']}]});
@@ -60,6 +68,8 @@ invoke('saves-restore',async (id,backup)=>{
 invoke('play',async (id,args)=>{const argv=launchArgs(args);const file=(await executables())[key(id)];if(!file)throw Error('Choose the game executable first.');if(!(await fs.stat(file).catch(()=>null))?.isFile())throw Error('Executable not found. Choose .exe again.');await new Promise((resolve,reject)=>{const child=spawn(file,argv,{cwd:dirname(file),detached:true,stdio:'ignore',shell:false});child.once('error',reject);child.once('spawn',()=>{child.unref();resolve()})})});
 app.whenReady().then(()=>{
   win=new BrowserWindow({width:1120,height:780,minWidth:600,minHeight:480,titleBarStyle:'hidden',titleBarOverlay:{color:'#101112',symbolColor:'#eee',height:30},backgroundColor:'#101112',webPreferences:{preload:join(__dirname,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
+  // Start maximized while keeping the native window controls available.
+  win.maximize();
   session.defaultSession.setPermissionRequestHandler((_wc,_permission,reply)=>reply(false));
   win.webContents.on('will-navigate',e=>e.preventDefault());win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   session.defaultSession.on('will-download',(_event,item,contents)=>{if(contents!==win?.webContents){item.cancel();return}if(item.getURL().startsWith('blob:')&&item.getFilename()==='byazen-sources.txt')return;queue.attach(item)});
